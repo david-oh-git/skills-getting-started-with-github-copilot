@@ -9,7 +9,15 @@ from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 import os
+import re
 from pathlib import Path
+
+
+def is_valid_email(email: str) -> bool:
+    """Validate email format"""
+    pattern = r'^[^\s@]+@[^\s@]+\.[^\s@]+$'
+    return re.match(pattern, email) is not None
+
 
 app = FastAPI(title="Mergington High School API",
               description="API for viewing and signing up for extracurricular activities")
@@ -91,6 +99,10 @@ def get_activities():
 @app.post("/activities/{activity_name}/signup")
 def signup_for_activity(activity_name: str, email: str):
     """Sign up a student for an activity"""
+    # Validate email format
+    if not is_valid_email(email):
+        raise HTTPException(status_code=400, detail="Invalid email format")
+    
     # Validate activity exists
     if activity_name not in activities:
         raise HTTPException(status_code=404, detail="Activity not found")
@@ -111,6 +123,10 @@ def signup_for_activity(activity_name: str, email: str):
 @app.delete("/activities/{activity_name}/unregister")
 def unregister_from_activity(activity_name: str, email: str):
     """Unregister a student from an activity"""
+    # Validate email format
+    if not is_valid_email(email):
+        raise HTTPException(status_code=400, detail="Invalid email format")
+    
     # Validate activity exists
     if activity_name not in activities:
         raise HTTPException(status_code=404, detail="Activity not found")

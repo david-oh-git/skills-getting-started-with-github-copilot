@@ -90,8 +90,30 @@ document.addEventListener("DOMContentLoaded", () => {
   signupForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
-    const email = document.getElementById("email").value;
+    const email = document.getElementById("email").value.trim();
     const activity = document.getElementById("activity").value;
+
+    // Validate email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email)) {
+      messageDiv.textContent = "Please enter a valid email address";
+      messageDiv.className = "error";
+      messageDiv.classList.remove("hidden");
+      setTimeout(() => {
+        messageDiv.classList.add("hidden");
+      }, 5000);
+      return;
+    }
+
+    if (!activity) {
+      messageDiv.textContent = "Please select an activity";
+      messageDiv.className = "error";
+      messageDiv.classList.remove("hidden");
+      setTimeout(() => {
+        messageDiv.classList.add("hidden");
+      }, 5000);
+      return;
+    }
 
     try {
       const response = await fetch(
@@ -107,6 +129,7 @@ document.addEventListener("DOMContentLoaded", () => {
         messageDiv.textContent = result.message;
         messageDiv.className = "success";
         signupForm.reset();
+        fetchActivities();
       } else {
         messageDiv.textContent = result.detail || "An error occurred";
         messageDiv.className = "error";
@@ -125,7 +148,6 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("Error signing up:", error);
     }
   });
-
   // Initialize app
   fetchActivities();
 });
